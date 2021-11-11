@@ -63,6 +63,7 @@ const renderName = () => {
     h3.appendChild(document.createTextNode(`Your name: ${userName}`));
 
     nameField.appendChild(h3);
+    renderRooms();
   };
 };
 
@@ -107,4 +108,3 @@ const selectRoom = (room) => {
 
 
 renderName();
-renderRooms();
