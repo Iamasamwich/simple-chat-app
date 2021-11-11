@@ -124,4 +124,16 @@ wss.on('connection', async (ws : WsPlus) => {
       });
     };
   });
+
+  ws.on('close', () => {
+    if (ws.room) {
+      tellRoom({
+        room: ws.room,
+        type: 'memberLeft',
+        payload: ws.name as string
+      });
+    };
+    ws.name = null;
+    ws.room = null;
+  });
 });

@@ -1,0 +1,8 @@
+#room {
+  padding: 10px;
+}
+
+#messages {
+  height: 300px;
+  overflow-y: scroll;
+}
