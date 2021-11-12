@@ -12,9 +12,17 @@ ws.onopen = () => {
   console.log('ws connected!');
 };
 
+ws.onclose = () => {
+  userName = null;
+  selectedRoom = null;
+  roomUsers = [];
+
+  renderRoom();
+  renderName();
+}
+
 ws.onmessage = ({data}) => {
   const message = JSON.parse(data);
-  console.log(message);
 
   switch (message.type) {
     case "setName":
@@ -187,7 +195,6 @@ const renderRoom = () => {
 };
 
 const addMessage = (message) => {
-  console.log('adding message', message);
   const newMessage = document.createElement('div');
   newMessage.classList.add('collection-item', 'grey', 'black-text', 'message');
   newMessage.appendChild(document.createTextNode(message));
