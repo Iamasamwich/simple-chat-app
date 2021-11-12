@@ -1,7 +1,6 @@
 import express from 'express';
 import http from 'http';
 import WebSocket from 'ws';
-import bcrypt from 'bcrypt';
 
 const app = express();
 app.use(express.json());
