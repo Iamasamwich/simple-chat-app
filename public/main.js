@@ -4,6 +4,7 @@ const roomUserContainer = document.querySelector('#roomUsers');
 const roomUserList = document.querySelector('#roomUserList');
 const messages = document.querySelector('#messages');
 const roomName = document.querySelector('#roomName');
+const messageInput = document.querySelector('#input');
 
 const ws = new WebSocket('ws://localhost:3001');
 
@@ -22,7 +23,7 @@ ws.onmessage = ({data}) => {
       break;
     case "joinedRoom":
       selectedRoom = message.payload;
-      // renderRoom();
+      renderRoom();
       break;
     case "userList":
       roomUsers = message.payload;
@@ -41,7 +42,12 @@ ws.onmessage = ({data}) => {
     case "leftRoom":
       roomUsers = [];
       selectedRoom = null;
+      renderRoom();
       renderUsers();
+      break;
+    case "newMessage":
+      addMessage(message.payload);
+      break;
     default:
       return;    
   };
@@ -159,6 +165,34 @@ const renderUsers = () => {
     li.classList.add('collection-item');
     roomUserList.appendChild(li);
   });
+};
+
+const renderRoom = () => {
+  roomName.innerHTML = '';
+  messages.innerHTML = '';
+  if (selectedRoom) {
+    roomName.appendChild(document.createTextNode(`Current Room: ${selectedRoom}`));
+  };
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && input.value) {
+      ws.send(JSON.stringify({
+        type: 'roomMessage',
+        message: input.value
+      }));
+      input.value = '';
+      input.focus();
+    };
+  });
+};
+
+const addMessage = (message) => {
+  console.log('adding message', message);
+  const newMessage = document.createElement('div');
+  newMessage.classList.add('collection-item', 'grey', 'black-text', 'message');
+  newMessage.appendChild(document.createTextNode(message));
+  messages.appendChild(newMessage);
+  newMessage.scrollIntoView();
 };
 
 renderName();

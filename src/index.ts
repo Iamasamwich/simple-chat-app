@@ -21,7 +21,6 @@ server.listen(3001, () => {
 interface WsPlus extends WebSocket {
   name ? : string | null;
   room ? : string | null;
-  id ? : string | null;
 };
 
 interface Send {
@@ -43,8 +42,6 @@ interface TellUser {
 const wss = new WebSocket.Server({server});
 
 wss.on('connection', async (ws : WsPlus) => {
-  const now = new Date().getTime().toString();
-  ws.id = await bcrypt.hash(now, 2);
 
   const tellUser = ({type, payload} : TellUser) => {
     ws.send(JSON.stringify({type, payload}));
@@ -96,14 +93,23 @@ wss.on('connection', async (ws : WsPlus) => {
         type: 'newMember',
         payload: ws.name as string
       });
+      tellRoom({
+        room: ws.room as string,
+        type: 'newMessage',
+        payload: `(${ws.name} has joined the room)`
+      });
       tellUser({
         type: 'joinedRoom',
         payload: `${ws.room}`
-      })
+      });
       tellUser({
         type: 'userList',
         payload: getRoomUsers(ws.room as string)
-      })
+      });
+      tellUser({
+        type: 'newMessage',
+        payload: `(You have joined room ${ws.room})`
+      });
     };
 
     if (message.type === 'leaveRoom' && ws.name && ws.room) {
@@ -112,7 +118,12 @@ wss.on('connection', async (ws : WsPlus) => {
         type: 'memberLeft',
         payload: ws.name as string
       });
-      tellUser({type: 'leftRoom', payload: null})
+      tellRoom({
+        room: ws.room,
+        type: 'newMessage',
+        payload: `(${ws.name} left the room...)`
+      })
+      tellUser({type: 'leftRoom', payload: ws.room})
       ws.room = null;
     };
 
@@ -121,6 +132,10 @@ wss.on('connection', async (ws : WsPlus) => {
         room: ws.room,
         type: 'newMessage',
         payload: `${ws.name}: ${message.message}`
+      });
+      tellUser({
+        type: 'newMessage',
+        payload: `You: ${message.message}`
       });
     };
   });
